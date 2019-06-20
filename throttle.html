@@ -27,6 +27,7 @@
         }
 
         // version0: 《JavaScript高级程序设计》中的方法，把定时器ID存为函数的一个属性
+        /*
         function throttle(method, context) {
             clearTimeout(method.tid);
             method.tid = setTimeout(function () {
@@ -37,6 +38,7 @@
         window.onresize = function () {
             throttle(testFn);
         }
+        */
 
         // version1: -> 错误 timer不是相对全局的变量每次resize会生成一个timer
         /*
@@ -94,7 +96,6 @@
         /* window.onresize = throttle(testFn, 200);*/
 
         // versin4：最终模式
-        /*
         var throttle = function (fn, delay, atleast) {
             var timer = null;
             var previous = null;
@@ -118,10 +119,9 @@
                 }
             }
         };
-        */
 
         // atleast参数选填
-        // window.onresize = throttle(testFn, 200, 1000);
+        window.onresize = throttle(testFn, 200, 1000);
         // window.onresize = throttle(testFn, 200);
     </script>
 </body>
