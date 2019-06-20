@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>函数节流or函数防抖</title>
+</head>
+
+<body>
+    <div>《JavaScript高级程序设计》中把函数防抖的命名错了，导致以后很多人都理解反了。<br />
+        问题：我们要做一个input，根据用户的输入实时搜索，该怎么做？
+        <br />
+        <h1>实例1：</h1>
+        <img src="a.gif" />
+        <br />
+        <h1>实例2：</h1>
+        <img src="b.gif" />
+    </div>
+    <hr />
+    <div id="demo"></div>
+    <script>
+        var COUNT = 0;
+        var demo = document.getElementById('demo');
+
+        function testFn() {
+            demo.innerHTML += 'testFn 被调用了 ' + ++COUNT + '次<br>';
+        }
+
+        // version0: 《JavaScript高级程序设计》中的方法，把定时器ID存为函数的一个属性
+        function throttle(method, context) {
+            clearTimeout(method.tid);
+            method.tid = setTimeout(function () {
+                method.call(context);
+            }, 100);
+        }
+
+        window.onresize = function () {
+            throttle(testFn);
+        }
+
+        // version1: -> 错误 timer不是相对全局的变量每次resize会生成一个timer
+        /*
+        window.onresize = function () {
+            var timer = null;
+            clearTimeout(timer);
+
+            timer = setTimeout(function () {
+                testFn();
+            }, 100);
+        };
+        */
+
+        // version2: -> 正确， 但是会多添加一个相对全局的变量，有可能影响业务逻辑
+        /*
+        var timer = null;
+        window.onresize = function () {
+            clearTimeout(timer);
+            timer = setTimeout(function() {
+                testFn();
+            }, 100);
+        };
+        */
+
+        // version3: -> 正确，使用闭包。但是到目前为至还有一个问题，如果不间断的触发resize的话fn是永远不会执行的
+        /**
+         * 函数节流方法
+         * @param Function fn 延时调用函数
+         * @param Number delay 延迟多长时间
+         * @return Function 延迟执行的方法
+         */
+
+        /*
+        var throttle = function (fn, delay) {
+            var timer = null;
+
+            return function () {
+                clearTimeout(timer);
+                timer = setTimeout(function () {
+                    fn();
+                }, delay);
+            }
+        };
+        */
+
+        // 第一种调用方式
+        /*
+        var f = throttle(testFn, 200);
+        window.onresize = function () {
+            f();
+        };
+        */
+
+        // 第二种调用方式
+        /* window.onresize = throttle(testFn, 200);*/
+
+        // versin4：最终模式
+        /*
+        var throttle = function (fn, delay, atleast) {
+            var timer = null;
+            var previous = null;
+
+            return function () {
+                var now = +new Date();
+
+                if (!previous) previous = now;
+
+                if (atleast && now - previous > atleast) {
+                    fn();
+                    // 重置上一次开始时间为本次结束时间
+                    previous = now;
+                    clearTimeout(timer);
+                } else {
+                    clearTimeout(timer);
+                    timer = setTimeout(function () {
+                        fn();
+                        previous = null;
+                    }, delay);
+                }
+            }
+        };
+        */
+
+        // atleast参数选填
+        // window.onresize = throttle(testFn, 200, 1000);
+        // window.onresize = throttle(testFn, 200);
+    </script>
+</body>
+
+</html>
